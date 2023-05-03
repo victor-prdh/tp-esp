@@ -6,23 +6,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>Température IUT</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+        .history {
+            text-align: center;
+            pad: 5px 0;
+        }
+
+        #temp {
+            width: fit-content;
+            margin: auto;
+            padding: 100px 40px;
+            display: block;
+            border-radius: 50%;
+            color: white;
+            font-size: 50px;
+            transition: all ease-in-out 0.2s;
+        }
+
+        .history li {
+            list-style: none;
+            padding: 5px 20px;
+            color: white;
+            width: fit-content;
+            margin: auto;
+        }
+        .green {
+            background-color: green;
+        }
+        .blue {
+            background-color: blue;
+        }
+        .orange {
+            background-color: orange;
+        }
+        .red {
+            background-color: red;
+        }
+        .black {
+            background-color: black;
+        }
+        .temp {
+            text-align: center;
+        }
+        h1, h3 {
+            text-transform: uppercase;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>Température de l'IUT</h1>
-
     <div class="temp">
         <h3>Température actuelle</h3>
         <span id="temp"></span>
     </div>
 
+
     <div class="history">
         <h3>Historique</h3>
-        <div id="history">
+        <div id="history-list">
 
         </div>
     </div>
-
-
+    <script src="https://d3js.org/d3.v4.js"></script>
     <script>
         fetchTemperature();
 
@@ -33,16 +81,39 @@
         function fetchTemperature() {
             console.log('fetch temperature');
             fetch('https://mmi20d13.mmi-troyes.fr/esp/last.php').then(data => data.json()).then((data) => {
-                document.querySelector('#temp').innerHTML = data.temperature + '°C';
+                let tempBlock = document.querySelector('#temp')
+                tempBlock.innerHTML = data.temperature + '°C';
+                if(data.temperature < 20){
+                    tempBlock.style.background = 'blue'
+                } else if(data.temperature > 20 && data.temperature < 25) {
+                    tempBlock.style.background = 'green'
+                } else if(data.temperature > 25 && data.temperature < 30) {
+                    tempBlock.style.background = 'orange'
+                } else if(data.temperature > 30 && data.temperature < 35) {
+                    tempBlock.style.background = 'red'
+                } else {
+                    tempBlock.style.background = 'black'
+                }
             })
 
             fetch('https://mmi20d13.mmi-troyes.fr/esp/all.php').then(data => data.json()).then((data) => {
                 var str = ''
                 data.forEach(temp => {
-                    str += '<li>' + temp.temperature + '°C ('+ temp.date +')</li>'
+                    const event = new Date(temp.date);
+                    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    if(temp.temperature < 20){
+                        str += '<li class="blue">' + temp.temperature + '°C '+ event.toLocaleTimeString('fr-FR', options) +'</li>'
+                    } else if(temp.temperature > 20 && temp.temperature < 25) {
+                        str += '<li class="green">' + temp.temperature + '°C '+ event.toLocaleTimeString('fr-FR', options) +'</li>'
+                    } else if(temp.temperature > 25 && temp.temperature < 30) {
+                        str += '<li class="orange">' + temp.temperature + '°C '+ event.toLocaleTimeString('fr-FR', options) +'</li>'
+                    } else if(temp.temperature > 30 && temp.temperature < 35) {
+                        str += '<li class="red">' + temp.temperature + '°C '+ event.toLocaleTimeString('fr-FR', options) +'</li>'
+                    } else {
+                        str += '<li class="black">' + temp.temperature + '°C '+ event.toLocaleTimeString('fr-FR', options) +'</li>'
+                    }
                 })
-
-                document.querySelector('#history').innerHTML = str;
+                document.querySelector('#history-list').innerHTML = str;
             })
         }
         
