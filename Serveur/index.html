@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Température IUT</title>
+</head>
+<body>
+    <h1>Température de l'IUT</h1>
+
+    <div class="temp">
+        <h3>Température actuelle</h3>
+        <span id="temp"></span>
+    </div>
+
+    <div class="history">
+        <h3>Historique</h3>
+        <div id="history">
+
+        </div>
+    </div>
+
+
+    <script>
+        fetchTemperature();
+
+        setInterval(()  => {
+            fetchTemperature()
+        }, 3000)
+
+        function fetchTemperature() {
+            console.log('fetch temperature');
+            fetch('https://mmi20d13.mmi-troyes.fr/esp/last.php').then(data => data.json()).then((data) => {
+                document.querySelector('#temp').innerHTML = data.temperature + '°C';
+            })
+
+            fetch('https://mmi20d13.mmi-troyes.fr/esp/all.php').then(data => data.json()).then((data) => {
+                var str = ''
+                data.forEach(temp => {
+                    str += '<li>' + temp.temperature + '°C ('+ temp.date +')</li>'
+                })
+
+                document.querySelector('#history').innerHTML = str;
+            })
+        }
+        
+    </script>
+</body>
+</html>
